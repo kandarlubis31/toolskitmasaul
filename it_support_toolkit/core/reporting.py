@@ -1,0 +1,155 @@
+"""Report generation module - system reports in PDF, HTML, CSV formats."""
+
+import os
+import csv
+import json
+from typing import Dict, Any, List
+from datetime import datetime
+
+
+class ReportGenerator:
+    """Generate professional system reports in multiple formats."""
+
+    def __init__(self):
+        self.report_dir = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "reports"
+        )
+        os.makedirs(self.report_dir, exist_ok=True)
+
+    def generate_report(self, data: Dict[str, Any], fmt: str = "html") -> str:
+        """Generate a system report and return the file path."""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        computer = data.get("system", {}).get("computer_name", "Unknown")
+        filename = f"SystemReport_{computer}_{timestamp}.{fmt}"
+        filepath = os.path.join(self.report_dir, filename)
+
+        if fmt == "html":
+            return self._generate_html(data, filepath)
+        elif fmt == "csv":
+            return self._generate_csv(data, filepath)
+        elif fmt == "json":
+            return self._generate_json(data, filepath)
+        else:
+            raise ValueError(f"Unsupported format: {fmt}")
+
+    def _generate_html(self, data: Dict, filepath: str) -> str:
+        """Generate an HTML report."""
+        sys_info = data.get("system", {})
+        hw = data.get("hardware", {})
+        cpu = hw.get("cpu", {})
+        ram = hw.get("ram", {})
+        storage = hw.get("storage", [])
+        gpu = hw.get("gpu", [])
+        security = data.get("security", {})
+        software = data.get("software", [])
+        network = data.get("network", {})
+        logs = data.get("event_logs", [])
+
+        html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>System Report - {sys_info.get('computer_name', 'Unknown')}</title>
+<style>
+body {{ font-family: 'Segoe UI', Arial, sans-serif; background: #1a1a2e; color: #e0e0f0; margin: 20px; }}
+h1 {{ color: #e94560; border-bottom: 2px solid #e94560; padding-bottom: 8px; }}
+h2 {{ color: #14a3a8; margin-top: 24px; }}
+table {{ width: 100%; border-collapse: collapse; margin: 12px 0; }}
+th, td {{ padding: 8px 12px; text-align: left; border-bottom: 1px solid #0f3460; }}
+th {{ background: #0f3460; color: #e0e0f0; }}
+tr:nth-child(even) {{ background: #16213e; }}
+.highlight {{ background: #0d7377 !important; }}
+.score {{ font-size: 36px; font-weight: bold; padding: 16px; border-radius: 8px; display: inline-block; }}
+.score-A {{ background: #2ecc71; color: #1a1a2e; }}
+.score-B {{ background: #27ae60; color: #1a1a2e; }}
+.score-C {{ background: #f39c12; color: #1a1a2e; }}
+.score-D {{ background: #e67e22; color: #1a1a2e; }}
+.score-F {{ background: #e74c3c; color: #fff; }}
+.footer {{ margin-top: 32px; font-size: 12px; color: #707080; text-align: center; }}
+</style>
+</head>
+<body>
+<h1>IT Support Toolkit - System Report</h1>
+<p>Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+
+<h2>System Information</h2>
+<table>
+<tr><th>Property</th><th>Value</th></tr>
+<tr><td>Computer Name</td><td>{sys_info.get('computer_name', 'N/A')}</td></tr>
+<tr><td>Windows Edition</td><td>{sys_info.get('windows_edition', 'N/A')}</td></tr>
+<tr><td>Build</td><td>{sys_info.get('windows_build', 'N/A')}</td></tr>
+<tr><td>Uptime</td><td>{sys_info.get('system_uptime', 'N/A')}</td></tr>
+<tr><td>CPU Usage</td><td>{sys_info.get('cpu_usage', 0)}%</td></tr>
+<tr><td>RAM</td><td>{sys_info.get('ram', {}).get('used_gb', 0)} GB / {sys_info.get('ram', {}).get('total_gb', 0)} GB</td></tr>
+<tr><td>Local IP</td><td>{sys_info.get('local_ip', 'N/A')}</td></tr>
+</table>
+
+<h2>CPU</h2>
+<table><tr><th>Property</th><th>Value</th></tr>
+<tr><td>Name</td><td>{cpu.get('name', 'N/A')}</td></tr>
+<tr><td>Cores</td><td>{cpu.get('cores', 0)}</td></tr>
+<tr><td>Threads</td><td>{cpu.get('threads', 0)}</td></tr>
+<tr><td>Usage</td><td>{cpu.get('usage', 0)}%</td></tr>
+</table>
+
+<h2>Memory</h2>
+<table><tr><th>Property</th><th>Value</th></tr>
+<tr><td>Total</td><td>{ram.get('total_gb', 0)} GB</td></tr>
+<tr><td>Used</td><td>{ram.get('used_gb', 0)} GB</td></tr>
+<tr><td>Speed</td><td>{ram.get('speed_mhz', 'N/A')} MHz</td></tr>
+</table>
+
+<h2>Storage</h2>
+<table><tr><th>Drive</th><th>Total</th><th>Used</th><th>Free</th><th>Usage</th></tr>
+{"".join(f'<tr><td>{d.get("drive", "N/A")}</td><td>{d.get("total_gb", 0)} GB</td><td>{d.get("used_gb", 0)} GB</td><td>{d.get("free_gb", 0)} GB</td><td>{d.get("percent", 0)}%</td></tr>' for d in storage)}
+</table>
+
+<h2>Security Score: <span class="score score-{security.get('grade', 'F')}">{security.get('score', 0)}/100 ({security.get('grade', 'F')})</span></h2>
+<table><tr><th>Check</th><th>Status</th><th>Value</th></tr>
+{"".join(f'<tr><td>{c.get("name", "")}</td><td>{c.get("status", "")}</td><td>{c.get("value", "")}</td></tr>' for c in security.get('checks', []))}
+</table>
+
+<div class="footer">Generated by IT Support Toolkit</div>
+</body>
+</html>"""
+
+        with open(filepath, "w", encoding="utf-8") as f:
+            f.write(html)
+        return filepath
+
+    def _generate_csv(self, data: Dict, filepath: str) -> str:
+        """Generate a CSV report."""
+        with open(filepath, "w", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow(["IT Support Toolkit - System Report"])
+            writer.writerow(["Generated", datetime.now().isoformat()])
+            writer.writerow([])
+
+            sys_info = data.get("system", {})
+            writer.writerow(["System Information"])
+            for k, v in sys_info.items():
+                if k != "ram" and k != "disk":
+                    writer.writerow([k, str(v)])
+
+            writer.writerow([])
+            writer.writerow(["RAM"])
+            ram = sys_info.get("ram", {})
+            for k, v in ram.items():
+                writer.writerow([k, str(v)])
+
+            writer.writerow([])
+            writer.writerow(["Security Audit"])
+            sec = data.get("security", {})
+            writer.writerow(["Score", sec.get("score", 0)])
+            writer.writerow(["Grade", sec.get("grade", "N/A")])
+            for c in sec.get("checks", []):
+                writer.writerow([c.get("name", ""), c.get("status", ""), c.get("value", "")])
+
+        return filepath
+
+    def _generate_json(self, data: Dict, filepath: str) -> str:
+        """Generate a JSON report."""
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, default=str)
+        return filepath
