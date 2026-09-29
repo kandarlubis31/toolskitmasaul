@@ -2,7 +2,7 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QTableWidget, QTableWidgetItem, QHeaderView, QLineEdit,
-    QMessageBox, QProgressBar
+    QMessageBox, QProgressBar, QScrollArea, QFrame
 )
 from PyQt6.QtCore import Qt
 from utils.background_tasks import TaskWorker
@@ -19,8 +19,18 @@ class SoftwarePage(QWidget):
         self.setup_ui()
 
     def setup_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setSpacing(12)
+        # Scroll area for responsive table scrolling
+        scroll = QScrollArea(self)
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.addWidget(scroll)
+
+        inner = QWidget()
+        layout = QVBoxLayout(inner)
+        layout.setContentsMargins(16, 8, 16, 8)
+        layout.setSpacing(8)
 
         title = QLabel("Software Inventory")
         title.setObjectName("pageTitle")
@@ -75,6 +85,8 @@ class SoftwarePage(QWidget):
         btn_html.clicked.connect(lambda: self.export("html"))
         export_layout.addWidget(btn_html)
         layout.addLayout(export_layout)
+
+        scroll.setWidget(inner)
 
     def showEvent(self, event):
         """Auto-scan on first view."""

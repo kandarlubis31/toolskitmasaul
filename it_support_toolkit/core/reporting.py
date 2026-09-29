@@ -1,4 +1,4 @@
-"""Report generation module - system reports in PDF, HTML, CSV formats."""
+"""Report generation module - system reports in HTML, CSV, and JSON formats."""
 
 import os
 import csv

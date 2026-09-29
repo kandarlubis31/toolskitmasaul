@@ -132,6 +132,13 @@ class SystemInfo:
         return "Enabled" if "True" in out else ("Disabled" if "False" in out else "Unknown")
 
     @staticmethod
+    def get_windows_update() -> str:
+        out = _run_ps("(New-Object -ComObject Microsoft.Update.AutoUpdate).Settings.NotificationLevel")
+        level_map = {"0": "Not Configured", "1": "Never Check", "2": "Notify Before Download",
+                     "3": "Auto Download", "4": "Auto Install"}
+        return level_map.get(out, "Auto") if out else "Unknown"
+
+    @staticmethod
     def get_activation() -> str:
         out = _run_ps(
             "(Get-CimInstance -ClassName SoftwareLicensingProduct -Filter 'PartialProductKey is not null').LicenseStatus"
@@ -158,7 +165,7 @@ class SystemInfo:
             ("public_ip", cls.get_public_ip),
             ("antivirus", cls.get_antivirus),
             ("firewall", cls.get_firewall),
-            ("windows_update", lambda: "Auto"),
+            ("windows_update", cls.get_windows_update),
             ("activation", cls.get_activation),
         ]
         data = {}

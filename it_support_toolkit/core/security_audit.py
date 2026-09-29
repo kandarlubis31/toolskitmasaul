@@ -16,7 +16,7 @@ class SecurityAudit:
         score = 100
 
         # 1. Windows Defender
-        av = SystemInfo.get_antivirus_status()
+        av = SystemInfo.get_antivirus()
         av_pass = "Enabled" in av
         score -= 0 if av_pass else 30
         checks.append({
@@ -28,7 +28,7 @@ class SecurityAudit:
         })
 
         # 2. Firewall
-        fw = SystemInfo.get_firewall_status()
+        fw = SystemInfo.get_firewall()
         fw_pass = "Enabled" in fw
         score -= 0 if fw_pass else 20
         checks.append({
@@ -40,7 +40,7 @@ class SecurityAudit:
         })
 
         # 3. Windows Update
-        wu = SystemInfo.get_windows_update_status()
+        wu = SystemInfo.get_windows_update()
         wu_pass = "Unknown" not in wu and "Auto" in wu
         score -= 0 if wu_pass else 15
         checks.append({

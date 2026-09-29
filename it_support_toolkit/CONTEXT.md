@@ -1,15 +1,15 @@
-# it_support_toolkit
+# it_support_toolkit — Project Context
 
-## Tentang Project
-
+## Ringkasan
 Enterprise-grade Windows diagnostics, monitoring, and repair platform IT Support Toolkit is a Windows-only desktop application for IT professionals and power users. It provides a si
 
-## Tech Stack
+> *Context ini dibuat otomatis oleh `catalog/generate_contexts.py`. Isi ulang
+> bagian ringkasan / arsitektur secara manual jika butuh detail lebih dalam.*
 
+## Tech Stack
 Python
 
 ## Struktur Utama
-
 ```
 assets/
 config/
@@ -32,14 +32,9 @@ README.md
 requirements.txt
 ```
 
-## Menjalankan
-
+## Cara Menjalankan
 - `python generate_icon.py`
 
 ---
 
 *Generated: 2026-08-08 · Path: python\toolskitmasaul\it_support_toolkit*
-
----
-
-Lihat `CONTEXT.md` di folder ini untuk detail arsitektur.

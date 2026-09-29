@@ -27,6 +27,7 @@ pip-wheel-metadata/
 # PyInstaller outputs and work dirs
 *.manifest
 *.spec
+!build.spec
 build_work*/
 build_work_final/
 build_work_test2/
@@ -87,3 +88,4 @@ desktop.ini
 localpycs/
 warn-*.txt
 xref-*.html
+nul

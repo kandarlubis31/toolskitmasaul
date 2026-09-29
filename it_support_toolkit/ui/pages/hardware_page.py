@@ -2,7 +2,8 @@
 
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, QGroupBox,
-    QTableWidget, QTableWidgetItem, QHeaderView, QPushButton, QGridLayout
+    QTableWidget, QTableWidgetItem, QHeaderView, QPushButton, QGridLayout,
+    QScrollArea, QSizePolicy
 )
 from PyQt6.QtCore import Qt
 from utils.background_tasks import TaskWorker
@@ -31,8 +32,18 @@ class HardwarePage(QWidget):
         self.refresh()
 
     def setup_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setSpacing(12)
+        # Scroll area for responsive resizing
+        scroll = QScrollArea(self)
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.addWidget(scroll)
+
+        inner = QWidget()
+        layout = QVBoxLayout(inner)
+        layout.setContentsMargins(16, 8, 16, 8)
+        layout.setSpacing(8)
 
         title = QLabel("Hardware Inventory")
         title.setObjectName("pageTitle")
@@ -109,6 +120,9 @@ class HardwarePage(QWidget):
         btn = QPushButton("Refresh Hardware Info")
         btn.clicked.connect(self.refresh)
         layout.addWidget(btn)
+        layout.addStretch()
+
+        scroll.setWidget(inner)
 
     def refresh(self):
         self.worker = TaskWorker(target=HardwareInfo.get_all)

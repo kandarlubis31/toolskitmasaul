@@ -3,7 +3,7 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QTableWidget, QTableWidgetItem, QHeaderView, QMessageBox,
-    QGroupBox, QFrame, QProgressBar
+    QGroupBox, QFrame, QProgressBar, QScrollArea
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QBrush
@@ -17,8 +17,18 @@ class SecurityPage(QWidget):
         self.setup_ui()
 
     def setup_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setSpacing(12)
+        # Scroll area for responsive audit viewing
+        scroll = QScrollArea(self)
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.addWidget(scroll)
+
+        inner = QWidget()
+        layout = QVBoxLayout(inner)
+        layout.setContentsMargins(16, 8, 16, 8)
+        layout.setSpacing(8)
 
         title = QLabel("Security Audit")
         title.setObjectName("pageTitle")
@@ -70,6 +80,8 @@ class SecurityPage(QWidget):
         btn = QPushButton("Run Security Audit")
         btn.clicked.connect(self.run_audit)
         layout.addWidget(btn)
+
+        scroll.setWidget(inner)
 
     def run_audit(self):
         self.score_label.setText("Scanning...")
