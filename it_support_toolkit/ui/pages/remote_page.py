@@ -2,7 +2,8 @@
 
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
-    QTextEdit, QLineEdit, QGroupBox, QFormLayout, QMessageBox
+    QTextEdit, QLineEdit, QGroupBox, QFormLayout, QMessageBox,
+    QScrollArea, QFrame
 )
 from PyQt6.QtCore import Qt
 from utils.background_tasks import TaskWorker
@@ -15,8 +16,18 @@ class RemotePage(QWidget):
         self.setup_ui()
 
     def setup_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setSpacing(10)
+        # Scroll area for remote tools
+        scroll = QScrollArea(self)
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.addWidget(scroll)
+
+        inner = QWidget()
+        layout = QVBoxLayout(inner)
+        layout.setContentsMargins(16, 8, 16, 8)
+        layout.setSpacing(8)
 
         title = QLabel("Remote Control")
         title.setObjectName("pageTitle")
@@ -77,6 +88,8 @@ class RemotePage(QWidget):
         self.output.setObjectName("outputArea")
         out_layout.addWidget(self.output)
         layout.addWidget(out_group)
+
+        scroll.setWidget(inner)
 
     def get_ip(self):
         ip = self.ip_input.text().strip()

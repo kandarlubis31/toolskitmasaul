@@ -3,7 +3,8 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QTableWidget, QTableWidgetItem, QHeaderView, QCheckBox,
-    QMessageBox, QGroupBox, QProgressBar, QTextEdit
+    QMessageBox, QGroupBox, QProgressBar, QTextEdit,
+    QScrollArea, QFrame
 )
 from PyQt6.QtCore import Qt
 from utils.background_tasks import TaskWorker
@@ -17,8 +18,18 @@ class CleanerPage(QWidget):
         self.setup_ui()
 
     def setup_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setSpacing(12)
+        # Scroll area for responsive cleaner page
+        scroll = QScrollArea(self)
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.addWidget(scroll)
+
+        inner = QWidget()
+        layout = QVBoxLayout(inner)
+        layout.setContentsMargins(16, 8, 16, 8)
+        layout.setSpacing(8)
 
         title = QLabel("System Cleaner")
         title.setObjectName("pageTitle")
@@ -66,8 +77,10 @@ class CleanerPage(QWidget):
         self.output = QTextEdit()
         self.output.setReadOnly(True)
         self.output.setObjectName("outputArea")
-        self.output.setMaximumHeight(150)
+        self.output.setMaximumHeight(120)
         layout.addWidget(self.output)
+
+        scroll.setWidget(inner)
 
     def scan(self):
         self.progress.setVisible(True)

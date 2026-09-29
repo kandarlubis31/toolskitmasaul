@@ -2,7 +2,8 @@
 
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
-    QTextEdit, QGroupBox, QMessageBox, QGridLayout, QProgressBar
+    QTextEdit, QGroupBox, QMessageBox, QGridLayout, QProgressBar,
+    QScrollArea, QFrame
 )
 from PyQt6.QtCore import Qt
 from utils.background_tasks import TaskWorker
@@ -16,8 +17,18 @@ class RepairPage(QWidget):
         self.setup_ui()
 
     def setup_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setSpacing(12)
+        # Scroll area for repair tools
+        scroll = QScrollArea(self)
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.addWidget(scroll)
+
+        inner = QWidget()
+        layout = QVBoxLayout(inner)
+        layout.setContentsMargins(16, 8, 16, 8)
+        layout.setSpacing(8)
 
         title = QLabel("Repair Tools")
         title.setObjectName("pageTitle")
@@ -55,7 +66,7 @@ class RepairPage(QWidget):
             if action["admin"]:
                 btn.setToolTip(btn.toolTip() + " [Admin Required]")
             btn.clicked.connect(lambda checked, a=aid: self.run_repair(a))
-            btn.setMinimumHeight(48)
+            btn.setMinimumHeight(40)
             grid.addWidget(btn, row, col)
             self.action_buttons[aid] = btn
 
@@ -67,9 +78,11 @@ class RepairPage(QWidget):
         self.output = QTextEdit()
         self.output.setReadOnly(True)
         self.output.setObjectName("outputArea")
-        self.output.setMaximumHeight(200)
+        self.output.setMaximumHeight(160)
         out_layout.addWidget(self.output)
         layout.addWidget(out_group)
+
+        scroll.setWidget(inner)
 
     def run_repair(self, action_id: str):
         self.progress.setVisible(True)

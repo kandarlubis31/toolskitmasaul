@@ -3,7 +3,7 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QTableWidget, QTableWidgetItem, QHeaderView, QComboBox,
-    QMessageBox, QGroupBox, QGridLayout, QFrame
+    QMessageBox, QGroupBox, QGridLayout, QFrame, QScrollArea
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QBrush
@@ -32,8 +32,18 @@ class LogsPage(QWidget):
         self.setup_ui()
 
     def setup_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setSpacing(12)
+        # Scroll area for responsive log viewing
+        scroll = QScrollArea(self)
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.addWidget(scroll)
+
+        inner = QWidget()
+        layout = QVBoxLayout(inner)
+        layout.setContentsMargins(16, 8, 16, 8)
+        layout.setSpacing(8)
 
         title = QLabel("Event Log Analyzer")
         title.setObjectName("pageTitle")
@@ -83,6 +93,8 @@ class LogsPage(QWidget):
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.table.setAlternatingRowColors(True)
         layout.addWidget(self.table)
+
+        scroll.setWidget(inner)
 
     def load_logs(self):
         log_type = self.log_type.currentText()

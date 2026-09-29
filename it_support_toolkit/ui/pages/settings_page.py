@@ -1,24 +1,42 @@
-"""Settings page with theme toggle and configuration."""
+"""Settings page with live theme switching and configuration."""
 
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QGroupBox, QCheckBox, QSpinBox, QFormLayout, QComboBox,
-    QMessageBox
+    QMessageBox, QScrollArea, QFrame
 )
-from PyQt6.QtCore import Qt
-from utils.config import get_settings, save_settings, update_setting
+from PyQt6.QtCore import Qt, pyqtSignal
+from utils.config import get_settings, save_settings
 from utils.permissions import is_admin, FEATURES_REQUIRING_ADMIN
 
 
 class SettingsPage(QWidget):
+    """Settings page that emits theme_changed signal for live theme switching."""
+
+    theme_changed = pyqtSignal(str)
+
     def __init__(self):
         super().__init__()
+        self._loading = True
         self.setup_ui()
         self.load_settings()
+        self._loading = False
+        # Connect after load to avoid triggering on initial load
+        self.theme_combo.currentTextChanged.connect(self._on_theme_changed)
 
     def setup_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setSpacing(12)
+        # Scroll area so settings fits on all screen sizes
+        scroll = QScrollArea(self)
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.addWidget(scroll)
+
+        inner = QWidget()
+        layout = QVBoxLayout(inner)
+        layout.setContentsMargins(20, 12, 20, 16)
+        layout.setSpacing(10)
 
         title = QLabel("Settings")
         title.setObjectName("pageTitle")
@@ -29,7 +47,13 @@ class SettingsPage(QWidget):
         theme_layout = QFormLayout(theme_group)
         self.theme_combo = QComboBox()
         self.theme_combo.addItems(["Dark", "Light"])
+        self.theme_combo.setToolTip("Changes apply immediately")
         theme_layout.addRow("Theme:", self.theme_combo)
+
+        # Preview note
+        preview_note = QLabel("✨ Theme changes apply instantly — no restart needed")
+        preview_note.setStyleSheet("font-size: 10px; color: #89b4fa; padding: 2px 0;")
+        theme_layout.addRow("", preview_note)
         layout.addWidget(theme_group)
 
         # General
@@ -68,12 +92,12 @@ class SettingsPage(QWidget):
         admin_layout.addWidget(features_label)
         for feature in FEATURES_REQUIRING_ADMIN:
             lbl = QLabel(f"  - {feature}")
-            lbl.setStyleSheet("font-size: 11px; color: #707080;")
+            lbl.setStyleSheet("font-size: 11px; color: #9ca0b0;")
             admin_layout.addWidget(lbl)
 
         layout.addWidget(admin_group)
 
-        # Save
+        # Save — now also applies theme
         btn_save = QPushButton("Save Settings")
         btn_save.clicked.connect(self.save_settings)
         layout.addWidget(btn_save)
@@ -85,8 +109,16 @@ class SettingsPage(QWidget):
         about_layout.addWidget(QLabel("Enterprise-grade Windows diagnostics platform"))
         about_layout.addWidget(QLabel("Python 3 + PyQt6 + psutil + pywin32"))
         layout.addWidget(about_group)
-
         layout.addStretch()
+
+        scroll.setWidget(inner)
+
+    def _on_theme_changed(self, theme_name: str):
+        """Apply theme immediately when combo changes."""
+        if self._loading:
+            return
+        theme = theme_name.lower()
+        self.theme_changed.emit(theme)
 
     def load_settings(self):
         settings = get_settings()
@@ -106,6 +138,6 @@ class SettingsPage(QWidget):
         }
         if save_settings(settings):
             QMessageBox.information(self, "Settings Saved",
-                "Settings have been saved. Some changes may require a restart.")
+                "Settings have been saved successfully.")
         else:
             QMessageBox.critical(self, "Error", "Failed to save settings")

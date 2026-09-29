@@ -1,7 +1,7 @@
 """Dashboard — real-time system monitoring with loading feedback."""
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame,
-    QProgressBar, QGroupBox, QGridLayout
+    QProgressBar, QGroupBox, QGridLayout, QScrollArea
 )
 from PyQt6.QtCore import Qt, QTimer
 try:
@@ -40,8 +40,18 @@ class DashboardPage(QWidget):
         self.setup_ui()
 
     def setup_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setSpacing(10)
+        # Scroll area for dashboard
+        scroll = QScrollArea(self)
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.addWidget(scroll)
+
+        inner = QWidget()
+        layout = QVBoxLayout(inner)
+        layout.setContentsMargins(16, 8, 16, 8)
+        layout.setSpacing(8)
 
         # Title row with status indicator
         header = QHBoxLayout()
@@ -64,7 +74,8 @@ class DashboardPage(QWidget):
             c = QFrame()
             c.setObjectName("healthCard")
             cl = QVBoxLayout(c)
-            cl.setSpacing(4)
+            cl.setSpacing(2)
+            cl.setContentsMargins(10, 8, 10, 8)
             v = QLabel("...")
             v.setObjectName("cardValue")
             s = QLabel("LOADING")
@@ -79,7 +90,8 @@ class DashboardPage(QWidget):
         # System info grid
         g = QGroupBox("System Information")
         grid = QGridLayout(g)
-        grid.setSpacing(4)
+        grid.setSpacing(2)
+        grid.setContentsMargins(10, 14, 10, 8)
         self.info = {}
         items = [
             "Computer Name", "User", "Windows", "Build",
@@ -101,6 +113,8 @@ class DashboardPage(QWidget):
         # Real-time resource bars
         rg = QGroupBox("Live Resources  🔄")
         rl = QVBoxLayout(rg)
+        rl.setContentsMargins(10, 14, 10, 8)
+        rl.setSpacing(4)
         for name in ("CPU:", "RAM:", "Disk:"):
             h = QHBoxLayout()
             lbl_name = QLabel(f"  {name[:-1]}  ")
@@ -119,8 +133,9 @@ class DashboardPage(QWidget):
             setattr(self, f"{clean}_bar", bar)
             setattr(self, f"{clean}_lbl", val)
         layout.addWidget(rg)
-
         layout.addStretch()
+
+        scroll.setWidget(inner)
 
     # ── refresh (first load) ──────────────────────────────
 
