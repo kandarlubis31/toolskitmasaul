@@ -87,3 +87,13 @@ desktop.ini
 localpycs/
 warn-*.txt
 xref-*.html
+
+# Dokumen internal agent (disimpan di repo privat workspace-docs)
+CONTEXT.md
+AGENTS.md
+CLAUDE.md
+PRD.md
+**/CONTEXT.md
+**/AGENTS.md
+**/CLAUDE.md
+**/PRD.md
