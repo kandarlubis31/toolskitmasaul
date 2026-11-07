@@ -82,6 +82,14 @@ it_support_toolkit/
 Version 2.0.0. See [CHANGELOG.md](it_support_toolkit/CHANGELOG.md) for what changed
 since 1.x.
 
+---
+
+## Bahasa Indonesia
+
+**IT Support Toolkit** adalah aplikasi desktop khusus Windows untuk pekerjaan IT sehari-hari: diagnostik sistem, inventaris perangkat keras dan lunak, penelusuran masalah jaringan, dan perkakas sekali klik.
+
+---
+
 ## License
 
 MIT — see [LICENSE](it_support_toolkit/LICENSE).
